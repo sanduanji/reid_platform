@@ -14,7 +14,7 @@ def _pluck(identities, indices, relabel=False):
             for fname in cam_images:
                 name = osp.splitext(fname)[0]
                 x, y, _ = map(int, name.split('_'))
-                assert pid == x and camid == y
+#                assert pid == x and camid == y
                 if relabel:
                     ret.append((fname, index, camid))
                 else:

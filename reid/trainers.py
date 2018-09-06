@@ -10,18 +10,25 @@ from .utils.meters import AverageMeter
 
 
 class BaseTrainer(object):
+
+    global losses, precisions
+    losses = AverageMeter()
+    precisions =AverageMeter()
+
     def __init__(self, model, criterion):
         super(BaseTrainer, self).__init__()
         self.model = model
         self.criterion = criterion
+        self.losses = losses
+        self.precisions =precisions
 
     def train(self, epoch, data_loader, optimizer, print_freq=1):
         self.model.train()
 
         batch_time = AverageMeter()
         data_time = AverageMeter()
-        losses = AverageMeter()
-        precisions = AverageMeter()
+#        losses = AverageMeter()
+#        precisions = AverageMeter()
 
         end = time.time()
         for i, inputs in enumerate(data_loader):

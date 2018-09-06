@@ -2,6 +2,16 @@ from __future__ import absolute_import
 
 from .inception import *
 from .resnet import *
+from .densenet import *
+from .mudeep import *
+from .squeeze import *
+from .shufflenet import *
+from .nasnet import *
+from .xception import *
+from .alexnet import *
+
+
+
 
 
 __factory = {
@@ -11,6 +21,14 @@ __factory = {
     'resnet50': resnet50,
     'resnet101': resnet101,
     'resnet152': resnet152,
+    'densenet121': DenseNet121,
+    'mudeep': MuDeep,
+    'squeezenet': SqueezeNet,
+    'shufflenet': ShuffleNet,
+    'nasnsetmobile': NASNetAMobile,
+    'xception': Xception,
+    'alexnet': AlexNet,
+
 }
 
 

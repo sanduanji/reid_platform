@@ -8,6 +8,11 @@ from .evaluation_metrics import cmc, mean_ap
 from .feature_extraction import extract_cnn_feature
 from .utils.meters import AverageMeter
 
+global m_AP, Rank1, Rank5, Rank10
+m_AP = 100000000000000000
+Rank1 = 0
+Rank5 = 0
+Rank10 = 0
 
 def extract_features(model, data_loader, print_freq=1, metric=None):
     model.eval()
@@ -69,6 +74,11 @@ def evaluate_all(distmat, query=None, gallery=None,
                  query_ids=None, gallery_ids=None,
                  query_cams=None, gallery_cams=None,
                  cmc_topk=(1, 5, 10)):
+    global m_AP
+    global Rank1
+    global Rank5
+    global Rank10
+
     if query is not None and gallery is not None:
         query_ids = [pid for _, pid, _ in query]
         gallery_ids = [pid for _, pid, _ in gallery]
@@ -86,30 +96,30 @@ def evaluate_all(distmat, query=None, gallery=None,
     cmc_configs = {
         'allshots': dict(separate_camera_set=False,
                          single_gallery_shot=False,
-                         first_match_break=False),
-        'cuhk03': dict(separate_camera_set=True,
-                       single_gallery_shot=True,
-                       first_match_break=False),
-        'market1501': dict(separate_camera_set=False,
-                           single_gallery_shot=False,
-                           first_match_break=True)}
+                         first_match_break=False)}
+
     cmc_scores = {name: cmc(distmat, query_ids, gallery_ids,
                             query_cams, gallery_cams, **params)
                   for name, params in cmc_configs.items()}
 
-    print('CMC Scores{:>12}{:>12}{:>12}'
-          .format('allshots', 'cuhk03', 'market1501'))
+    print('CMC Scores{:>12}'
+          .format('allshots'))
     for k in cmc_topk:
-        print('  top-{:<4}{:12.1%}{:12.1%}{:12.1%}'
-              .format(k, cmc_scores['allshots'][k - 1],
-                      cmc_scores['cuhk03'][k - 1],
-                      cmc_scores['market1501'][k - 1]))
+        print('  top-{:<4}{:12.1%}'.format(k, cmc_scores['allshots'][k - 1]))
+
+    Rank1 = cmc_scores['allshots'][0]
+    Rank1 = format(Rank1,'.1%')
+    print(Rank1)
 
     # Use the allshots cmc top-1 score for validation criterion
-    return cmc_scores['allshots'][0]
+    return cmc_scores['allshots'][0], cmc_scores['allshots'][4], cmc_scores['allshots'][9], mAP
 
 
 class Evaluator(object):
+
+    global m_AP
+    global Rank1, Rank5, Rank10
+
     def __init__(self, model):
         super(Evaluator, self).__init__()
         self.model = model
@@ -118,3 +128,6 @@ class Evaluator(object):
         features, _ = extract_features(self.model, data_loader)
         distmat = pairwise_distance(features, query, gallery, metric=metric)
         return evaluate_all(distmat, query=query, gallery=gallery)
+
+
+
